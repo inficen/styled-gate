@@ -1,10 +1,16 @@
-import { Button } from "ui";
+import styled from "styled-components"
+
+const Box = styled.div`
+  ${() => ({
+    color: "",
+  })}
+`
 
 export default function Web() {
   return (
     <div>
       <h1>Web</h1>
-      <Button />
+      <Box>Box</Box>
     </div>
-  );
+  )
 }
