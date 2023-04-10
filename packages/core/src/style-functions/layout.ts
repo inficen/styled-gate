@@ -1,7 +1,8 @@
 import { system, get } from "../system"
 
-const isNumber = (n) => typeof n === "number" && !isNaN(n)
-const getWidth = (n, scale) =>
+const isNumber = (n: unknown): n is number => typeof n === "number" && !isNaN(n)
+
+const getWidth = (n: string | number, scale: any) =>
   get(scale, n, !isNumber(n) || n > 1 ? n : n * 100 + "%")
 
 export const layout = system({

@@ -9,11 +9,11 @@ describe("system()", () => {
       },
     })
     const styles = parser({
-      bgImage: "firstValue",
       theBgImage: "someOtherValue",
+      bgImage: "correctValue",
     })
 
-    expect(styles).toEqual({ backgroundImage: "firstValue" })
+    expect(styles).toEqual({ backgroundImage: "correctValue" })
   })
 
   it("returns a style parser", () => {
@@ -298,7 +298,7 @@ describe("system()", () => {
     const parser = system({
       margin: {
         cssProperty: "margin",
-        transform: (n, scale, props) => {
+        transform: (n: any, scale, props) => {
           const m = props.multiply || 1
           return m * n
         },
