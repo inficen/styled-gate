@@ -4,30 +4,28 @@ const defaults = {
   fontSizes: [12, 14, 16, 20, 24, 32, 48, 64, 72],
 }
 
-const config = {
+export const typography = system({
   fontFamily: {
-    property: "fontFamily",
+    cssProperty: "fontFamily",
     scale: "fonts",
   },
   fontSize: {
-    property: "fontSize",
+    cssProperty: "fontSize",
     scale: "fontSizes",
     defaultScale: defaults.fontSizes,
   },
   fontWeight: {
-    property: "fontWeight",
+    cssProperty: "fontWeight",
     scale: "fontWeights",
   },
   lineHeight: {
-    property: "lineHeight",
+    cssProperty: "lineHeight",
     scale: "lineHeights",
   },
   letterSpacing: {
-    property: "letterSpacing",
+    cssProperty: "letterSpacing",
     scale: "letterSpacings",
   },
   textAlign: true,
   fontStyle: true,
-}
-
-export const typography = system(config)
+})

@@ -1,1 +1,2 @@
-export { system } from "./system";
+export { system, get, compose } from "./system"
+export type { SystemConfig } from "./system"

@@ -20,104 +20,101 @@ const getMargin = (n, scale) => {
   return value * (isNegative ? -1 : 1)
 }
 
-const configs = {}
-configs.margin = {
+export const margin = system({
   margin: {
-    property: "margin",
+    cssProperty: "margin",
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
+    alias: "m",
   },
   marginTop: {
-    property: "marginTop",
+    cssProperty: "marginTop",
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
+    alias: "mt",
   },
   marginRight: {
-    property: "marginRight",
+    cssProperty: "marginRight",
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
+    alias: "mr",
   },
   marginBottom: {
-    property: "marginBottom",
+    cssProperty: "marginBottom",
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
+    alias: "mb",
   },
   marginLeft: {
-    property: "marginLeft",
+    cssProperty: "marginLeft",
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
+    alias: "ml",
   },
   marginX: {
-    properties: ["marginLeft", "marginRight"],
+    cssProperty: ["marginLeft", "marginRight"],
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
+    alias: "mx",
   },
   marginY: {
-    properties: ["marginTop", "marginBottom"],
+    cssProperty: ["marginTop", "marginBottom"],
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
+    alias: "my",
   },
-}
-configs.margin.m = configs.margin.margin
-configs.margin.mt = configs.margin.marginTop
-configs.margin.mr = configs.margin.marginRight
-configs.margin.mb = configs.margin.marginBottom
-configs.margin.ml = configs.margin.marginLeft
-configs.margin.mx = configs.margin.marginX
-configs.margin.my = configs.margin.marginY
+})
 
-configs.padding = {
+export const padding = system({
   padding: {
-    property: "padding",
+    cssProperty: "padding",
     scale: "space",
     defaultScale: defaults.space,
+    alias: "p",
   },
   paddingTop: {
-    property: "paddingTop",
+    cssProperty: "paddingTop",
     scale: "space",
     defaultScale: defaults.space,
+    alias: "pt",
   },
   paddingRight: {
-    property: "paddingRight",
+    cssProperty: "paddingRight",
     scale: "space",
     defaultScale: defaults.space,
+    alias: "pr",
   },
   paddingBottom: {
-    property: "paddingBottom",
+    cssProperty: "paddingBottom",
     scale: "space",
     defaultScale: defaults.space,
+    alias: "pb",
   },
   paddingLeft: {
-    property: "paddingLeft",
+    cssProperty: "paddingLeft",
     scale: "space",
     defaultScale: defaults.space,
+    alias: "pl",
   },
   paddingX: {
-    properties: ["paddingLeft", "paddingRight"],
+    cssProperty: ["paddingLeft", "paddingRight"],
     scale: "space",
     defaultScale: defaults.space,
+    alias: "px",
   },
   paddingY: {
-    properties: ["paddingTop", "paddingBottom"],
+    cssProperty: ["paddingTop", "paddingBottom"],
     scale: "space",
     defaultScale: defaults.space,
+    alias: "py",
   },
-}
-configs.padding.p = configs.padding.padding
-configs.padding.pt = configs.padding.paddingTop
-configs.padding.pr = configs.padding.paddingRight
-configs.padding.pb = configs.padding.paddingBottom
-configs.padding.pl = configs.padding.paddingLeft
-configs.padding.px = configs.padding.paddingX
-configs.padding.py = configs.padding.paddingY
+})
 
-export const margin = system(configs.margin)
-export const padding = system(configs.padding)
 export const space = compose(margin, padding)

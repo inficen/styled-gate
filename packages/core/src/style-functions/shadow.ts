@@ -2,11 +2,11 @@ import { system } from "../system"
 
 export const shadow = system({
   boxShadow: {
-    property: "boxShadow",
+    cssProperty: "boxShadow",
     scale: "shadows",
   },
   textShadow: {
-    property: "textShadow",
+    cssProperty: "textShadow",
     scale: "shadows",
   },
 })

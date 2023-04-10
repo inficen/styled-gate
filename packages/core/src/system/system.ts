@@ -1,47 +1,66 @@
-type SystemInput = Record<
+import { Properties } from "csstype"
+
+type CssKey = keyof Properties
+
+export type SystemConfig = Record<
   string,
-  Omit<CreateStyleFunctionInput, "propName"> | boolean
+  // Full config object
+  | Omit<CreateStyleFunctionInput, "propName">
+  // prop name matches css property
+  | boolean
+  // single alias shorthand
+  | string
+  // multiple alias shorthand
+  | Array<string>
 >
 
-export const system = <T extends SystemInput>(config: T): StyleFunction => {
-  const styleFunctions = Object.entries(config).map(([propName, config]) =>
-    typeof config === "boolean"
-      ? createStyleFunction({ propName, cssProperty: propName })
-      : createStyleFunction({
-          ...config,
-          propName,
-        })
-  )
+export function system<T extends SystemConfig>(config: T): StyleFunction {
+  const styleFunctionMap: Record<string, StyleFunction> = {}
 
-  return (props: StyledFunctionProps) =>
-    styleFunctions.reduce((styles, fn) => {
-      return mergeStyles(styles, fn(props))
-    }, {})
-}
+  const styleFunctions = Object.entries(config).map(([propName, config]) => {
+    const verboseConfig =
+      typeof config === "boolean"
+        ? { propName, cssProperty: propName as CssKey }
+        : typeof config === "string" || Array.isArray(config)
+        ? {
+            propName,
+            cssProperty: propName as CssKey,
+            alias: config,
+          }
+        : {
+            ...config,
+            propName,
+          }
 
-type Styles = Record<string, string | number | ObjectStyles>
-
-type ObjectStyles = Record<string, string | number>
-
-function mergeStyles(existingStyles: Styles, newStyles: Styles): Styles {
-  const mergedStyles = { ...existingStyles }
-  Object.entries(newStyles).map(([key, value]) => {
-    const mergedStyleValue = mergedStyles[key]
-    if (mergedStyleValue && typeof mergedStyleValue === "object") {
-      if (value && typeof value === "object") {
-        mergedStyles[key] = { ...mergedStyleValue, ...value }
-      }
-    } else {
-      mergedStyles[key] = value
-    }
+    const styleFn = createStyleFunction(verboseConfig)
+    styleFunctionMap[propName] = styleFn
+    const { alias } = verboseConfig
+    const aliases = alias ? (Array.isArray(alias) ? alias : [alias]) : []
+    aliases.forEach((alias) => {
+      styleFunctionMap[alias] = styleFn
+    })
   })
 
-  return mergedStyles
+  return createParser(styleFunctionMap)
 }
 
-type SystemFunction<T extends SystemInput> = (props: {
-  [K in keyof T]?: string | number
-}) => Record<string, unknown>
+type CreateParserConfig = Record<string, StyleFunction>
+
+function createParser(config: CreateParserConfig) {
+  const parser = (props: StyledFunctionProps) => {
+    return Object.keys(props).reduce((styles, propName) => {
+      const styleFn = config[propName]
+      if (styleFn) {
+        styles = mergeStyles(styles, styleFn(props))
+      }
+      return styles
+    }, {})
+  }
+
+  parser.config = config
+
+  return parser
+}
 
 type StyleFunction = <T extends Record<string, unknown> = any>(
   input: StyledFunctionProps<T>
@@ -53,11 +72,79 @@ type StyledFunctionProps<T extends Record<string, unknown> = any> = {
 
 type CreateStyleFunctionInput = {
   propName: string
-  cssProperty?: string | string[]
+  cssProperty?: CssKey | CssKey[]
   scale?: string
-  transform?: (value: string, scale: string) => string
-  defaultScale?: string[]
+  transform?: (value: string | number, scale: string, props: any) => string
+  defaultScale?: Array<unknown>
+  alias?: string | Array<string>
 }
+
+const getValue = (n: string | number, scale: any) => get(scale, n, n)
+
+export function createStyleFunction({
+  defaultScale,
+  propName,
+  cssProperty,
+  scale: _scale,
+  transform = getValue,
+  alias,
+}: CreateStyleFunctionInput): StyleFunction {
+  return (props: StyledFunctionProps) => {
+    const scale = _scale ? props.theme?.[_scale] ?? defaultScale : defaultScale
+    const allBreakpoints = props.theme?.breakpoints ?? themeDefaults.breakpoints
+    const allPropNames = [propName, ...(Array.isArray(alias) ? alias : [alias])]
+    const value: any =
+      props[allPropNames.find((propName) => props[propName] !== undefined)]
+
+    const cssKeys = cssProperty
+      ? Array.isArray(cssProperty)
+        ? cssProperty
+        : [cssProperty]
+      : []
+
+    const styles: Styles = {}
+    const addRootStyle = (path: string | number) => {
+      const styleValue = transform(path, scale, props)
+      cssKeys.forEach((key) => {
+        if (isNotNil(styleValue)) {
+          styles[key] = styleValue
+        }
+      })
+    }
+
+    if (value && typeof value === "object") {
+      const normalizedBreakpoints = normalizeBreakpointStyles(
+        value,
+        allBreakpoints
+      )
+      if (normalizedBreakpoints) {
+        normalizedBreakpoints.map(({ breakpoint, value }) => {
+          if (breakpoint === "DEFAULT") {
+            addRootStyle(value)
+          } else {
+            const nestedStyles: ObjectStyles = {}
+            const styleValue = transform(value, scale, props)
+            cssKeys.forEach((key) => {
+              if (isNotNil(styleValue)) {
+                nestedStyles[key] = styleValue
+              }
+            })
+
+            styles[getBreakpointMediaQuery(breakpoint)] = nestedStyles
+          }
+        })
+      }
+    } else {
+      addRootStyle(value)
+    }
+
+    return styles
+  }
+}
+
+type Styles = Record<string, string | number | ObjectStyles>
+
+type ObjectStyles = Record<string, string | number>
 
 function normalizeBreakpointStyles(
   styles: Array<string | number> | Record<string, string | number>,
@@ -78,63 +165,6 @@ function normalizeBreakpointStyles(
           value: (styles as any)[key],
         }
   )
-}
-
-export const createStyleFunction = ({
-  defaultScale,
-  propName,
-  cssProperty,
-  scale,
-  transform,
-}: CreateStyleFunctionInput): StyleFunction => {
-  return ({ theme = themeDefaults, ...props }: StyledFunctionProps) => {
-    const allBreakpoints = theme?.breakpoints ?? themeDefaults.breakpoints
-    const value: any = props[propName]
-
-    const cssKeys = cssProperty
-      ? Array.isArray(cssProperty)
-        ? cssProperty
-        : [cssProperty]
-      : []
-
-    const styles: Styles = {}
-    const addRootStyle = (path: string, defaultValue: any) => {
-      const styleValue = get(theme, path, defaultValue)
-      cssKeys.forEach((key) => {
-        if (styleValue !== null) {
-          styles[key] = styleValue
-        }
-      })
-    }
-
-    if (value && typeof value === "object") {
-      const normalizedBreakpoints = normalizeBreakpointStyles(
-        value,
-        allBreakpoints
-      )
-      if (normalizedBreakpoints) {
-        normalizedBreakpoints.map(({ breakpoint, value }) => {
-          if (breakpoint === "DEFAULT") {
-            addRootStyle(`${scale}.${value}`, value)
-          } else {
-            const nestedStyles: ObjectStyles = {}
-            const styleValue = get(theme, `${scale}.${value}`, value)
-            cssKeys.forEach((key) => {
-              if (styleValue !== null) {
-                nestedStyles[key] = styleValue
-              }
-            })
-
-            styles[getBreakpointMediaQuery(breakpoint)] = nestedStyles
-          }
-        })
-      }
-    } else {
-      addRootStyle(`${scale}.${value}`, value)
-    }
-
-    return styles
-  }
 }
 
 function getBreakpointValue(
@@ -160,5 +190,42 @@ function getBreakpointMediaQuery(value: string): string {
   return `@media screen and (min-width: ${value})`
 }
 
-const get = (obj: Record<string, any>, key: string, defaultValue: any): any =>
-  key.split(".").reduce((val, key) => val?.[key], obj) ?? defaultValue
+export function get(
+  obj: Record<string, any>,
+  key: string | number,
+  defaultValue: any
+): any {
+  return (
+    `${key}`.split(".").reduce((val, key) => val?.[key], obj) ?? defaultValue
+  )
+}
+
+const themeGet =
+  (path: string, fallback: any = null) =>
+  (props: any) =>
+    get(props.theme, path, fallback)
+
+function mergeStyles(existingStyles: Styles, newStyles: Styles): Styles {
+  const mergedStyles = { ...existingStyles }
+  Object.entries(newStyles).map(([key, value]) => {
+    const mergedStyleValue = mergedStyles[key]
+    if (mergedStyleValue && typeof mergedStyleValue === "object") {
+      if (value && typeof value === "object") {
+        mergedStyles[key] = { ...mergedStyleValue, ...value }
+      }
+    } else {
+      mergedStyles[key] = value
+    }
+  })
+
+  return mergedStyles
+}
+
+function isNotNil<T>(val: T | undefined | null): val is T {
+  return val !== undefined && val !== null
+}
+
+export function compose(...styleFunctions: StyleFunction[]): StyleFunction {
+  return (props: StyledFunctionProps) =>
+    styleFunctions.reduce((styles, fn) => mergeStyles(styles, fn(props)), {})
+}

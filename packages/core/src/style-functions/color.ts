@@ -1,16 +1,14 @@
 import { system } from "../system"
 
-const config = {
+export const color = system({
   color: {
-    property: "color",
+    cssProperty: "color",
     scale: "colors",
   },
   backgroundColor: {
-    property: "backgroundColor",
+    cssProperty: "backgroundColor",
     scale: "colors",
+    alias: "bg",
   },
   opacity: true,
-}
-config.bg = config.backgroundColor
-
-export const color = system(config)
+})

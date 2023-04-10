@@ -4,32 +4,30 @@ const defaults = {
   space: [0, 4, 8, 16, 32, 64, 128, 256, 512],
 }
 
-const config = {
+export const position = system({
   position: true,
   zIndex: {
-    property: "zIndex",
+    cssProperty: "zIndex",
     scale: "zIndices",
   },
   top: {
-    property: "top",
+    cssProperty: "top",
     scale: "space",
     defaultScale: defaults.space,
   },
   right: {
-    property: "right",
+    cssProperty: "right",
     scale: "space",
     defaultScale: defaults.space,
   },
   bottom: {
-    property: "bottom",
+    cssProperty: "bottom",
     scale: "space",
     defaultScale: defaults.space,
   },
   left: {
-    property: "left",
+    cssProperty: "left",
     scale: "space",
     defaultScale: defaults.space,
   },
-}
-
-export const position = system(config)
+})

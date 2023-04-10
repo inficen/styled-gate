@@ -4,30 +4,30 @@ const isNumber = (n) => typeof n === "number" && !isNaN(n)
 const getWidth = (n, scale) =>
   get(scale, n, !isNumber(n) || n > 1 ? n : n * 100 + "%")
 
-const config = {
+export const layout = system({
   width: {
-    property: "width",
+    cssProperty: "width",
     scale: "sizes",
     transform: getWidth,
   },
   height: {
-    property: "height",
+    cssProperty: "height",
     scale: "sizes",
   },
   minWidth: {
-    property: "minWidth",
+    cssProperty: "minWidth",
     scale: "sizes",
   },
   minHeight: {
-    property: "minHeight",
+    cssProperty: "minHeight",
     scale: "sizes",
   },
   maxWidth: {
-    property: "maxWidth",
+    cssProperty: "maxWidth",
     scale: "sizes",
   },
   maxHeight: {
-    property: "maxHeight",
+    cssProperty: "maxHeight",
     scale: "sizes",
   },
   size: {
@@ -39,6 +39,4 @@ const config = {
   overflowY: true,
   display: true,
   verticalAlign: true,
-}
-
-export const layout = system(config)
+})

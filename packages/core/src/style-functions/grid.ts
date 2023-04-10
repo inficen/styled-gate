@@ -4,19 +4,19 @@ const defaults = {
   space: [0, 4, 8, 16, 32, 64, 128, 256, 512],
 }
 
-const config = {
+export const grid = system({
   gridGap: {
-    property: "gridGap",
+    cssProperty: "gridGap",
     scale: "space",
     defaultScale: defaults.space,
   },
   gridColumnGap: {
-    property: "gridColumnGap",
+    cssProperty: "gridColumnGap",
     scale: "space",
     defaultScale: defaults.space,
   },
   gridRowGap: {
-    property: "gridRowGap",
+    cssProperty: "gridRowGap",
     scale: "space",
     defaultScale: defaults.space,
   },
@@ -29,6 +29,4 @@ const config = {
   gridTemplateRows: true,
   gridTemplateAreas: true,
   gridArea: true,
-}
-
-export const grid = system(config)
+})
