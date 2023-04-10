@@ -20,7 +20,7 @@ const getMargin = (n: string | number, scale: number[]) => {
   return value * (isNegative ? -1 : 1)
 }
 
-export const margin = system({
+export const space = system({
   margin: {
     cssProperty: "margin",
     scale: "space",
@@ -70,9 +70,7 @@ export const margin = system({
     defaultScale: defaults.space,
   },
   my: "marginY",
-})
 
-export const padding = system({
   padding: {
     cssProperty: "padding",
     scale: "space",
@@ -116,7 +114,5 @@ export const padding = system({
   },
   py: "paddingY",
 })
-
-export const space = compose(margin, padding)
 
 export type SpaceProps = SystemProps<typeof space>

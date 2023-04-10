@@ -234,35 +234,3 @@ const themeGet =
   (path: string, fallback: any = null) =>
   (props: any) =>
     get(props.theme, path, fallback)
-
-export type SystemProps<R extends Parser | SystemConfig> = R extends Parser<
-  infer T
->
-  ? SystemPropsLogic<T>
-  : R extends SystemConfig
-  ? SystemPropsLogic<R>
-  : never
-
-type SystemPropsLogic<T extends SystemConfig> = Partial<{
-  [K in keyof T]: ResolveAlias<T, K> extends boolean
-    ? GetProps<ResolveAliasKey<T, K>>
-    : GetCssProperty<ResolveAlias<T, K>> extends any[]
-    ? string
-    : GetProps<GetCssProperty<ResolveAlias<T, K>>>
-}>
-
-type GetProps<K> = K extends keyof CssProperties ? CssProperties[K] : never
-
-type GetCssProperty<T> = T extends { cssProperty: unknown }
-  ? T["cssProperty"]
-  : never
-
-type ResolveAliasKey<
-  T extends SystemConfig,
-  K extends keyof T
-> = T[K] extends string ? ResolveAliasKey<T, T[K]> : K
-
-type ResolveAlias<
-  T extends SystemConfig,
-  K extends keyof T
-> = T[ResolveAliasKey<T, K>]
