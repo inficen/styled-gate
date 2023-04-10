@@ -1,4 +1,4 @@
-import { system, get } from "../system"
+import { system, get, SystemProps } from "../system"
 
 const isNumber = (n: unknown): n is number => typeof n === "number" && !isNaN(n)
 
@@ -32,7 +32,7 @@ export const layout = system({
     scale: "sizes",
   },
   size: {
-    properties: ["width", "height"],
+    cssProperty: ["width", "height"],
     scale: "sizes",
   },
   overflow: true,
@@ -41,3 +41,5 @@ export const layout = system({
   display: true,
   verticalAlign: true,
 })
+
+export type LayoutProps = SystemProps<typeof layout>

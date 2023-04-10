@@ -1,4 +1,4 @@
-import { system } from "../system"
+import { system, SystemProps } from "../system"
 
 export const shadow = system({
   boxShadow: {
@@ -10,3 +10,5 @@ export const shadow = system({
     scale: "shadows",
   },
 })
+
+export type ShadowProps = SystemProps<typeof shadow>

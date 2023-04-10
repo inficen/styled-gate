@@ -1,4 +1,4 @@
-import { system } from "../system"
+import { system, SystemProps } from "../system"
 
 const defaults = {
   space: [0, 4, 8, 16, 32, 64, 128, 256, 512],
@@ -30,3 +30,5 @@ export const grid = system({
   gridTemplateAreas: true,
   gridArea: true,
 })
+
+export type GridProps = SystemProps<typeof grid>

@@ -3,17 +3,23 @@ import { system } from "./system"
 describe("system()", () => {
   it("supports alias", () => {
     const parser = system({
+      bgImage: "backgroundImage",
       backgroundImage: {
         cssProperty: "backgroundImage",
-        alias: ["bgImage", "theBgImage"],
       },
-    })
-    const styles = parser({
-      theBgImage: "someOtherValue",
-      bgImage: "correctValue",
+      something: true,
+      somethingAlias: "something",
     })
 
-    expect(styles).toEqual({ backgroundImage: "correctValue" })
+    const styles = parser({
+      bgImage: "correctValue",
+      somethingAlias: "somethingValue",
+    })
+
+    expect(styles).toEqual({
+      backgroundImage: "correctValue",
+      something: "somethingValue",
+    })
   })
 
   it("returns a style parser", () => {

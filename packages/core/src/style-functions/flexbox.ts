@@ -1,4 +1,4 @@
-import { system } from "../system"
+import { system, SystemProps } from "../system"
 
 const config = {
   alignItems: true,
@@ -18,3 +18,5 @@ const config = {
 }
 
 export const flexbox = system(config)
+
+export type FlexboxProps = SystemProps<typeof flexbox>

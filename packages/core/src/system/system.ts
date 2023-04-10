@@ -1,58 +1,51 @@
-import { Properties } from "csstype"
+import { Properties as CssProperties } from "csstype"
 
-type CssKey = keyof Properties
+type CssKey = keyof CssProperties
 
-export type SystemConfig = Record<
-  string,
+export type SystemConfig = Record<string | "cow", SystemConfigValue>
+
+type SystemConfigValue =
   // Full config object
-  | (Omit<CreateStyleFunctionInput, "propName"> & { alias?: string | string[] })
+  | Omit<CreateStyleFunctionInput, "propName">
   // prop name matches css property
   | boolean
   // single alias shorthand
   | string
-  // multiple alias shorthand
-  | Array<string>
->
 
-export function system<T extends SystemConfig>(config: T): Parser {
+export function system<T extends SystemConfig>(config: Readonly<T>): Parser<T> {
   const styleFunctionMap: Record<string, StyleFunction> = {}
 
-  for (const item of Object.entries(config)) {
-    const [propName, config] = item
-
-    const verboseConfig =
-      typeof config === "boolean"
-        ? { propName, cssProperty: propName as CssKey }
-        : typeof config === "string" || Array.isArray(config)
-        ? {
-            propName,
-            cssProperty: propName as CssKey,
-            alias: config,
-          }
-        : {
-            ...config,
-            propName,
-          }
-
-    const styleFn = createStyleFunction(verboseConfig)
-    styleFunctionMap[propName] = styleFn
-
-    const { alias } = verboseConfig
-    const aliases = alias ? (Array.isArray(alias) ? alias : [alias]) : []
-    for (const alias of aliases) {
-      styleFunctionMap[alias] = createStyleFunction({
-        ...verboseConfig,
-        propName: alias,
-      })
+  function getConfig(propName: string): CreateStyleFunctionInput {
+    const shortConfig = config[propName]
+    if (typeof shortConfig === "string") {
+      if (!config[shortConfig]) {
+        throw Error(`Invalid alias [${propName}: ${shortConfig}]`)
+      }
+      return { ...getConfig(shortConfig), propName }
     }
+
+    const verboseConfig: CreateStyleFunctionInput =
+      typeof shortConfig === "boolean"
+        ? { propName, cssProperty: propName as CssKey }
+        : { ...shortConfig, propName }
+
+    return verboseConfig
+  }
+
+  for (const propName of Object.keys(config)) {
+    styleFunctionMap[propName] = createStyleFunction(getConfig(propName))
   }
 
   return createParser(styleFunctionMap)
 }
 
-type Parser = {
+type ParserConfig<T extends SystemConfig> = {
+  [K in keyof T]: StyleFunction
+}
+
+export type Parser<T extends SystemConfig = any> = {
   (props: StyledFunctionProps): Styles
-  config: Record<string, StyleFunction>
+  config: ParserConfig<T>
 }
 
 type CreateParserConfig = Record<string, StyleFunction>
@@ -241,3 +234,35 @@ const themeGet =
   (path: string, fallback: any = null) =>
   (props: any) =>
     get(props.theme, path, fallback)
+
+export type SystemProps<R extends Parser | SystemConfig> = R extends Parser<
+  infer T
+>
+  ? SystemPropsLogic<T>
+  : R extends SystemConfig
+  ? SystemPropsLogic<R>
+  : never
+
+type SystemPropsLogic<T extends SystemConfig> = Partial<{
+  [K in keyof T]: ResolveAlias<T, K> extends boolean
+    ? GetProps<ResolveAliasKey<T, K>>
+    : GetCssProperty<ResolveAlias<T, K>> extends any[]
+    ? string
+    : GetProps<GetCssProperty<ResolveAlias<T, K>>>
+}>
+
+type GetProps<K> = K extends keyof CssProperties ? CssProperties[K] : never
+
+type GetCssProperty<T> = T extends { cssProperty: unknown }
+  ? T["cssProperty"]
+  : never
+
+type ResolveAliasKey<
+  T extends SystemConfig,
+  K extends keyof T
+> = T[K] extends string ? ResolveAliasKey<T, T[K]> : K
+
+type ResolveAlias<
+  T extends SystemConfig,
+  K extends keyof T
+> = T[ResolveAliasKey<T, K>]

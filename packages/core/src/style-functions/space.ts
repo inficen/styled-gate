@@ -1,4 +1,4 @@
-import { get, system, compose } from "../system"
+import { get, system, compose, SystemProps } from "../system"
 
 const defaults = {
   space: [0, 4, 8, 16, 32, 64, 128, 256, 512],
@@ -26,50 +26,50 @@ export const margin = system({
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
-    alias: "m",
   },
+  m: "margin",
   marginTop: {
     cssProperty: "marginTop",
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
-    alias: "mt",
   },
+  mt: "marginTop",
   marginRight: {
     cssProperty: "marginRight",
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
-    alias: "mr",
   },
+  mr: "marginRight",
   marginBottom: {
     cssProperty: "marginBottom",
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
-    alias: "mb",
   },
+  mb: "marginBottom",
   marginLeft: {
     cssProperty: "marginLeft",
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
-    alias: "ml",
   },
+  ml: "marginLeft",
   marginX: {
     cssProperty: ["marginLeft", "marginRight"],
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
-    alias: "mx",
   },
+  mx: "marginX",
   marginY: {
     cssProperty: ["marginTop", "marginBottom"],
     scale: "space",
     transform: getMargin,
     defaultScale: defaults.space,
-    alias: "my",
   },
+  my: "marginY",
 })
 
 export const padding = system({
@@ -77,44 +77,46 @@ export const padding = system({
     cssProperty: "padding",
     scale: "space",
     defaultScale: defaults.space,
-    alias: "p",
   },
+  p: "padding",
   paddingTop: {
     cssProperty: "paddingTop",
     scale: "space",
     defaultScale: defaults.space,
-    alias: "pt",
   },
+  pt: "paddingTop",
   paddingRight: {
     cssProperty: "paddingRight",
     scale: "space",
     defaultScale: defaults.space,
-    alias: "pr",
   },
+  pr: "paddingRight",
   paddingBottom: {
     cssProperty: "paddingBottom",
     scale: "space",
     defaultScale: defaults.space,
-    alias: "pb",
   },
+  pb: "paddingBottom",
   paddingLeft: {
     cssProperty: "paddingLeft",
     scale: "space",
     defaultScale: defaults.space,
-    alias: "pl",
   },
+  pl: "paddingLeft",
   paddingX: {
     cssProperty: ["paddingLeft", "paddingRight"],
     scale: "space",
     defaultScale: defaults.space,
-    alias: "px",
   },
+  px: "paddingX",
   paddingY: {
     cssProperty: ["paddingTop", "paddingBottom"],
     scale: "space",
     defaultScale: defaults.space,
-    alias: "py",
   },
+  py: "paddingY",
 })
 
 export const space = compose(margin, padding)
+
+export type SpaceProps = SystemProps<typeof space>

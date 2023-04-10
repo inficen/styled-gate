@@ -1,4 +1,4 @@
-import { system } from "../system"
+import { system, SystemProps } from "../system"
 
 export const border = system({
   borderTopWidth: {
@@ -110,3 +110,5 @@ export const border = system({
     scale: "borders",
   },
 })
+
+export type BorderProps = SystemProps<typeof border>

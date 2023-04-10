@@ -1,4 +1,4 @@
-import { system } from "../system"
+import { system, SystemProps } from "../system"
 
 export const color = system({
   color: {
@@ -8,7 +8,9 @@ export const color = system({
   backgroundColor: {
     cssProperty: "backgroundColor",
     scale: "colors",
-    alias: "bg",
   },
+  bg: "backgroundColor",
   opacity: true,
 })
+
+export type ColorProps = SystemProps<typeof color>

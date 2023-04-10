@@ -1,4 +1,4 @@
-import { system } from "../system"
+import { system, SystemProps } from "../system"
 
 const defaults = {
   fontSizes: [12, 14, 16, 20, 24, 32, 48, 64, 72],
@@ -29,3 +29,5 @@ export const typography = system({
   textAlign: true,
   fontStyle: true,
 })
+
+export type TypographyProps = SystemProps<typeof typography>
